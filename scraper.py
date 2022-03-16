@@ -52,31 +52,36 @@ def fetch_links(content):
 
 def get_driver():
     options = Options()
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = webdriver.chrome.service.Service(CHROMEDRIVER_PATH)
     return webdriver.Chrome(service=s, options=options) 
 
 
 def get_profile_html(name, discrim):
-    url = f'https://tracker.gg/valorant/profile/riot/{name}%23{discrim}' + \
-           '/matches?playlist=competitive&season=all'
-    driver = get_driver()
-    driver.get(url)
-    time.sleep(5)
-    js = 'document.getElementsByTagName(\"button\")[1].click();'
-    while True:
-        try:
-            driver.find_element(by=By.XPATH, 
-                value='//*[contains(text(), \"Load More Matches\")]').click()
-            time.sleep(5)
-        except:
-            break
-    content = driver.page_source
-    driver.close()
-    
-    return content
+    # They put a cloudflare blocker the day after I wrote this
 
+    # url = 'https://tracker.gg/valorant/profile/riot/' + \
+    #       {name.replace(' ', '%20')} + f'%23{discrim}' + \
+    #        '/matches?playlist=competitive&season=all'
+    # driver = get_driver()
+    # driver.get(url)
+    # time.sleep(5)
+    # js = 'document.getElementsByTagName(\"button\")[1].click();'
+    # while True:
+    #     try:
+    #         driver.find_element(by=By.XPATH, 
+    #             value='//*[contains(text(), \"Load More Matches\")]').click()
+    #         time.sleep(5)
+    #     except:
+    #         break
+    # content = driver.page_source
+    # driver.close()
+
+    # Manual downloads:
+    with open(f'./html/{name}_{discrim}.html') as file:
+        content = file.read()
+    return content
 
 def get_match_html(gamehash):
     url = f'https://tracker.gg/valorant/match/{gamehash}'
@@ -165,7 +170,7 @@ def match_dict(gamehash, match_map, start_dt, duration, scores, a_econ, b_econ):
 
 
 # Get all gamehashes played by a given player
-def get_gamehashes(name, discrim):
+def get_player_gamehashes(name, discrim):
     content = get_profile_html(name, discrim)
     links = fetch_links(content)
     return [x.split('match/')[1] for x in links if '/match/' in x]
