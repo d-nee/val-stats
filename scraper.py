@@ -126,7 +126,7 @@ def get_match_player_info(gamehash, pid_agents, soup):
             pid, p_dict = handle_match_rows(r)
             pid_comp = pid.split('#')
             p_dict['gamehash'] = gamehash
-            p_dict['name'] = pid_comp[0]
+            p_dict['name'] = pid_comp[0].lower()
             p_dict['discrim'] = pid_comp[1]
             p_dict['team'] = e
             p_dict['agent'] = pid_agents[pid]
@@ -138,11 +138,13 @@ def match_dict(gamehash, match_map, start_dt, duration, scores, a_econ, b_econ):
     m_dict = dict()
     m_dict['gamehash'] = gamehash
     m_dict['map'] = match_map
-    m_dict['start_date'] = start_dt[0]
+    start_d = start_dt[0].split('/')
     if start_dt[1][-2:] == 'PM':
-        m_dict['start_time'] = f'{int(start_dt[1][0:2])+12}{start_dt[1][2:5]}'
+        start_time = f'{int(start_dt[1][0:2])+12}{start_dt[1][2:5]}'
     else:
-        m_dict['start_time'] = start_dt[1][0:5]
+        start_time = start_dt[1][0:5]
+    sql_dt = f'20{start_d[2]}-{start_d[0]}-{start_d[1]} {start_time}:00'
+    m_dict['start_time'] = sql_dt
     dur_str = ''
     for time_unit in ['h', 'm', 's']:
         if time_unit in duration:

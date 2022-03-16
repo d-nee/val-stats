@@ -1,21 +1,35 @@
 from tqdm import tqdm
 from scraper import get_match_info
 
-GAMEHASHES_PATH = './gamehashes.txt'
-MATCH_CSV_PATH = './matches.csv'
-MATCH_STATS_CSV_PATH = './player_stats.csv'
+GENERATE_GAMEHASHES = False
 
-MATCH_KEYS = ['gamehash', 'map', 'start_date', 'start_time', 'duration',
+USERNAMES_PATH = './data/names.txt'
+GAMEHASHES_PATH = './data/gamehashes.txt'
+MATCH_CSV_PATH = './data/matches.csv'
+MATCH_STATS_CSV_PATH = './data/player_stats.csv'
+
+MATCH_KEYS = ['gamehash', 'map', 'start_time', 'duration',
               'a_score', 'b_score', 'a_bank', 'a_loadout', 
               'b_bank', 'b_loadout']
 
 PLAYER_KEYS = ['gamehash', 'name', 'discrim', 'team', 'agent', 'ACS', 'ECON',
                'K', 'D', 'A', 'ADR', 'HSP', 'FK', 'FD', 'MK']
 
-if __name__ == '__main__':
+def get_gamehashes():
+    with open(USERNAMES_PATH, 'r', encoding='utf-8') as file:
+        names = file.read().split()
+    gamehashes = set()
+    for name in tqdm(names):
+        pid = name.split('#')
+        gamehashes.update(get_gamehashes(pid[0], pid[1]))
+    with open(GAMEHASHES_PATH, 'w', encoding='utf-8') as file:
+        for gh in gamehashes:
+            file.write(f"{gh}\n")
+
+def write_stats():
     with open(GAMEHASHES_PATH, 'r', encoding='utf-8') as file:
         gamehashes = file.read().split()
-    
+
     match_file = open(MATCH_CSV_PATH, 'w', encoding='utf-8')
     match_stats_file = open(MATCH_STATS_CSV_PATH, 'w', encoding='utf-8')
 
@@ -37,3 +51,9 @@ if __name__ == '__main__':
     
     match_file.close()
     match_stats_file.close()
+
+
+if __name__ == '__main__':
+    if GENERATE_GAMEHASHES:
+        get_gamehashes()
+    write_stats()
