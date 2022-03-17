@@ -17,3 +17,7 @@ IGNORE 1 ROWS;
 LOAD DATA LOCAL INFILE './data/team_stat.csv' INTO TABLE team_stat
 FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
+
+INSERT INTO mv_player_overall_stat
+SELECT ign, discrim, SUM(kills), SUM(deaths), COUNT(gamehash)
+FROM game_stat GROUP BY ign, discrim;

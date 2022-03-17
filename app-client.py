@@ -57,7 +57,6 @@ def query_overall():
     try:
         cursor.execute(sql)
         result = cursor.fetchone()
-        print(result)
         if result == None:
             print("Invalid IGN/Discrim")
         else:
