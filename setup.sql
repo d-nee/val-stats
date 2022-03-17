@@ -31,7 +31,7 @@ CREATE TABLE game_stat(
     discrim         VARCHAR(5),
     -- Competitive rank
     comp_rank       VARCHAR(20) NOT NULL,
-    -- A or B
+    -- A or B, where a team is 'A' if they won
     team            CHAR(1) NOT NULL,
     agent           VARCHAR(15) NOT NULL,
     -- Average combat score throughout match, rounded
