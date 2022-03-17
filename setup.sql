@@ -4,7 +4,8 @@ DROP TABLE IF EXISTS team_stat;
 DROP TABLE IF EXISTS player;
 DROP TABLE IF EXISTS game;
 
-
+-- Games played and cataloged by the web crawler
+-- Includes time, duration, and score information
 CREATE TABLE game(
     gamehash    CHAR(36) PRIMARY KEY,
     map         VARCHAR(10) NOT NULL,
@@ -16,7 +17,8 @@ CREATE TABLE game(
     CHECK(a_score >= 0 AND b_score >= 0)
 );
 
-
+-- All players of all games catalogued
+-- If the player lives in page house, they have further descriptive data
 CREATE TABLE player(
     ign         VARCHAR(30),
     discrim     VARCHAR(5),
@@ -26,7 +28,8 @@ CREATE TABLE player(
     PRIMARY KEY(ign, discrim)
 );
 
-
+-- Statistics of players who played each game.
+-- Includes their rank, team, and a host of statistics.
 CREATE TABLE game_stat(
     gamehash        CHAR(36),
     ign             VARCHAR(30),
@@ -57,6 +60,8 @@ CREATE TABLE game_stat(
 );
 
 
+-- Team economy statistics, including how much money they saved and spent,
+-- on average. Does not include round by round data.
 CREATE TABLE team_stat(
     gamehash    CHAR(36),
     team        CHAR(1),
@@ -69,6 +74,7 @@ CREATE TABLE team_stat(
 
 
 -- Materialized View for UDFs/Procedures/Triggers
+-- Contains total kill, death, and game counts for each player.
 CREATE TABLE mv_player_overall_stat(
     ign             VARCHAR(30),
     discrim         VARCHAR(5),

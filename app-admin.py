@@ -1,6 +1,11 @@
 """
-Daniel Nee, Amy Pham
-TODO: Brief Overview of this admin interface
+Names:
+Daniel Nee - dnee@caltech.edu
+Amy Pham - apham@caltech.edu
+
+This is the admin interface, which in addition to the client functionality
+of three query types, adds in the option to delete a player, the games the 
+player played, and other players which no longer have a game as a result.
 """
 import sys  # to print error messages to sys.stderr
 import mysql.connector
@@ -42,6 +47,7 @@ def get_conn():
 # Functions for Command-Line Options/Query Execution
 # ----------------------------------------------------------------------
 def query_overall():
+    # Uses the materializd view to quickly give overall stats
     name = input("IGN of player: ").lower()
     discrim = input("Tag of player: ")
     cursor = conn.cursor()
@@ -69,6 +75,7 @@ def query_overall():
     show_options()
 
 def query_agent():
+    # Queries the database for agent-group summary statistics
     name = input("IGN of player: ").lower()
     discrim = input("Tag of player: ")
     cursor = conn.cursor()
@@ -98,6 +105,7 @@ def query_agent():
     show_options()
 
 def query_teammates():
+    # Queries the database for the most often played with players
     name = input("IGN of player: ").lower()
     discrim = input("Tag of player: ")
     cursor = conn.cursor()
@@ -132,6 +140,10 @@ def query_teammates():
 
 
 def remove_player():
+    '''
+    Delete a player, the games the player played, and other players which no 
+    longer have a game in the database as a result.
+    '''
     name = input("IGN of player: ").lower()
     discrim = input("Tag of player: ")
     cursor = conn.cursor()
@@ -161,6 +173,7 @@ def remove_player():
 # Functions for Logging Users In
 # ----------------------------------------------------------------------
 def login():
+    # Handles authentication, logging in through the admin authentication
     cursor = conn.cursor()
     success = False
     print("Enter Username and Password. Program exits after 3 failed attempts.")
@@ -225,8 +238,6 @@ def main():
 
 
 if __name__ == '__main__':
-    # This conn is a global object that other functinos can access.
-    # You'll need to use cursor = conn.cursor() each time you are
-    # about to execute a query with cursor.execute(<sqlquery>)
+    # Initialize the connection and start the program
     conn = get_conn()
     main()
