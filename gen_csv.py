@@ -6,9 +6,9 @@ GENERATE_GAMEHASHES = True
 PAGE_PLAYERS_PATH = './data/page_players.csv'
 GAMEHASHES_PATH = './data/gamehashes.txt'
 
-MATCH_CSV_PATH = './data/match.csv'
+MATCH_CSV_PATH = './data/game.csv'
 PLAYER_CSV_PATH = './data/player.csv'
-MATCH_STAT_CSV_PATH = './data/match_stat.csv'
+MATCH_STAT_CSV_PATH = './data/game_stat.csv'
 TEAM_STAT_CSV_PATH = './data/team_stat.csv'
 
 MATCH_KEYS = ['gamehash', 'map', 'start_time', 'duration', 'a_score', 'b_score']
@@ -25,7 +25,8 @@ def get_gh_dict():
     gh_dict = dict()
     with open(GAMEHASHES_PATH, 'r', encoding='utf-8') as file:
         gamehashes = file.read().split()
-    for gh in tqdm(gamehashes):
+    for i in tqdm(range(len(gamehashes))):
+        gh = gamehashes[i]
         gh_dict[gh] = get_match_info(gh)
     return gh_dict
 
@@ -40,11 +41,11 @@ def get_page_gamehashes():
         page_pids.add('#'.join(pid))
         if GENERATE_GAMEHASHES:        
             gamehashes.update(get_player_gamehashes(pid[0], pid[1]))
-    print(len(gamehashes))
     if GENERATE_GAMEHASHES:
         with open(GAMEHASHES_PATH, 'w', encoding='utf-8') as file:
             for gh in gamehashes:
                 file.write(f"{gh}\n")
+        print(f'{len(gamehashes)} Games Found')
     print('Page Gamehash Generation Complete')
     return page_pids
 

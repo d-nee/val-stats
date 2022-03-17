@@ -1,10 +1,12 @@
-DROP TABLE IF EXISTS match;
+DROP TABLE IF EXISTS mv_player_overall_stat;
+DROP TABLE IF EXISTS game_stat;
+DROP TABLE IF EXISTS team_stat;
 DROP TABLE IF EXISTS player;
-DROP TABLE IF EXISTS match_stats;
-DROP TABLE IF EXISTS team_stats;
+DROP TABLE IF EXISTS game;
 
-CREATE TABLE match(
-    gamehash    CHAR(16) PRIMARY KEY,
+
+CREATE TABLE game(
+    gamehash    CHAR(36) PRIMARY KEY,
     map         VARCHAR(10) NOT NULL,
     start_time  DATETIME NOT NULL,
     duration    TIME NOT NULL,
@@ -15,17 +17,17 @@ CREATE TABLE match(
 
 CREATE TABLE player(
     ign         VARCHAR(30),
-    discrim     VARCHAR(4),
-    -- Info, if the player is living in Page
+    discrim     VARCHAR(5),
+    -- Info, if the player is living in Page. Players can have multiple accts.
     real_name   VARCHAR(30),
     room_num    TINYINT,
     PRIMARY KEY(ign, discrim)
 );
 
-CREATE TABLE match_stat(
-    gamehash        CHAR(16),
+CREATE TABLE game_stat(
+    gamehash        CHAR(36),
     ign             VARCHAR(30),
-    discrim         VARCHAR(4),
+    discrim         VARCHAR(5),
     -- Competitive rank
     comp_rank       VARCHAR(20) NOT NULL,
     -- A or B
@@ -46,27 +48,25 @@ CREATE TABLE match_stat(
     first_deaths    TINYINT NOT NULL,
     multi_kills     TINYINT NOT NULL,
     PRIMARY KEY(gamehash, ign, discrim),
-    FOREIGN KEY(gamehash) REFERENCES match(gamehash) ON DELETE CASCADE,
+    FOREIGN KEY(gamehash) REFERENCES game(gamehash) ON DELETE CASCADE,
     FOREIGN KEY(ign, discrim) REFERENCES player(ign, discrim) ON DELETE CASCADE,
     INDEX(agent)
 );
 
 CREATE TABLE team_stat(
-    gamehash    CHAR(16),
+    gamehash    CHAR(36),
     team        CHAR(1),
     -- Average amount team had over all rounds, in their bank/loadout
     bank        SMALLINT NOT NULL,
     loadout     SMALLINT NOT NULL,
     PRIMARY KEY(gamehash, team),
-    FOREIGN KEY(gamehash) REFERENCES match(gamehash) ON DELETE CASCADE
+    FOREIGN KEY(gamehash) REFERENCES game(gamehash) ON DELETE CASCADE
 );
-
-CREATE INDEX idx_agent ON match_stat(agent);
 
 -- Materialized View for UDFs/Procedures/Triggers
 CREATE TABLE mv_player_overall_stat(
     ign             VARCHAR(30),
-    discrim         VARCHAR(4),
+    discrim         VARCHAR(5),
     total_kills     INT NOT NULL,
     total_deaths    INT NOT NULL,
     total_matches   INT NOT NULL,

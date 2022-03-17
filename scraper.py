@@ -1,5 +1,5 @@
 import time
-import requests
+import random
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -52,7 +52,7 @@ def fetch_links(content):
 
 def get_driver():
     options = Options()
-    # options.add_argument('--headless')
+    options.add_argument('--headless')
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     s = webdriver.chrome.service.Service(CHROMEDRIVER_PATH)
     return webdriver.Chrome(service=s, options=options) 
@@ -67,7 +67,6 @@ def get_profile_html(name, discrim):
     # driver = get_driver()
     # driver.get(url)
     # time.sleep(5)
-    # js = 'document.getElementsByTagName(\"button\")[1].click();'
     # while True:
     #     try:
     #         driver.find_element(by=By.XPATH, 
@@ -87,13 +86,14 @@ def get_match_html(gamehash):
     url = f'https://tracker.gg/valorant/match/{gamehash}'
     driver = get_driver()
     driver.get(url)
-    time.sleep(3)
+    time.sleep(4)
     content = driver.page_source
     driver.find_element(by=By.XPATH, 
         value='//*[contains(text(), \"Duels\")]').click()
     time.sleep(3)
     agent_content = driver.page_source
     driver.close()
+    time.sleep(random.random() * 5)
     return content, agent_content
 
 
@@ -144,7 +144,7 @@ def match_dict(gamehash, match_map, start_dt, duration, scores, a_econ, b_econ):
     m_dict['gamehash'] = gamehash
     m_dict['map'] = match_map
     start_d = start_dt[0].split('/')
-    if start_dt[1][-2:] == 'PM':
+    if start_dt[1][-2:] == 'PM' and not start_dt[1][0:2] == '12':
         start_time = f'{int(start_dt[1][0:2])+12}{start_dt[1][2:5]}'
     else:
         start_time = start_dt[1][0:5]
