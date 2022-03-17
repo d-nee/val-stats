@@ -72,7 +72,7 @@ def write_player(already_added, game_info):
             pid = f"{p['name']}#{p['discrim']}"
             if pid in already_added:
                 continue
-            player_file.write(f"{p['name']},{p['discrim']},,\n")
+            player_file.write(f"{p['name']},{p['discrim']},\\N,\\N\n")
             already_added.add(pid)
     player_file.close()
 

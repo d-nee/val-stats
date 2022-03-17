@@ -1,7 +1,7 @@
 -- Salt Generation
 DELIMITER !
-CREATE FUNCTION make_salt(num_chars INT) 
-RETURNS VARCHAR(20) NOT DETERMINISTIC
+CREATE FUNCTION make_salt(num_chars INT)
+RETURNS VARCHAR(20) DETERMINISTIC
 BEGIN
     DECLARE salt VARCHAR(20) DEFAULT '';
     -- Don't want to generate more than 20 characters of salt.
@@ -41,11 +41,10 @@ CREATE TABLE user_info (
 DELIMITER !
 CREATE PROCEDURE sp_add_user(new_username VARCHAR(20), password VARCHAR(20))
 BEGIN
-    DECLARE password_hash BINARY(64);
     DECLARE salt          CHAR(8);
     SELECT make_salt(8) INTO salt;
-    SELECT SHA2(CONCAT(salt, password)) INTO password_hash;
-    INSERT INTO user_info VALUES (new_username, salt, password_hash);
+    INSERT INTO user_info
+    VALUES (new_username, salt, SHA2(CONCAT(salt, password), 256));
 END !
 DELIMITER ;
 -- [Problem 1b]
@@ -56,13 +55,23 @@ DELIMITER !
 CREATE FUNCTION authenticate(username VARCHAR(20), password VARCHAR(20))
 RETURNS TINYINT DETERMINISTIC
 BEGIN
-    
+    DECLARE count_name  TINYINT;
+    DECLARE target_salt CHAR(8);
+    DECLARE target_hash BINARY(64);
+    SELECT COUNT(*) INTO count_name FROM user_info
+    WHERE user_info.username = username;
+    IF count_name = 0 THEN RETURN 0;
+    END IF;
+    SELECT salt, password_hash INTO target_salt, target_hash FROM user_info
+    WHERE user_info.username = username;
+    IF SHA2(CONCAT(target_salt, password), 256) = target_hash THEN RETURN 1;
+    ELSE RETURN 0;
+    END IF;
+    RETURN 0;
 END !
 DELIMITER ;
 -- [Problem 1c]
 -- Add at least two users into your user_info table so that when we run this file,
 -- we will have examples users in the database.
--- [Problem 1d]
--- Optional: Create a procedure sp_change_password to generate a new salt and 
-change the given
--- user's password to the given password (after salting and hashing)
+CALL sp_add_user('client', '3478');
+CALL sp_add_user('admin', 'stronk_pw');

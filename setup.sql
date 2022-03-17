@@ -12,15 +12,16 @@ CREATE TABLE game(
     duration    TIME NOT NULL,
     -- Amount of rounds won by each team
     a_score     TINYINT NOT NULL,
-    b_score     TINYINT NOT NULL
+    b_score     TINYINT NOT NULL,
+    CHECK(a_score >= 0 AND b_score >= 0)
 );
 
 CREATE TABLE player(
     ign         VARCHAR(30),
     discrim     VARCHAR(5),
     -- Info, if the player is living in Page. Players can have multiple accts.
-    real_name   VARCHAR(30),
-    room_num    TINYINT,
+    real_name   VARCHAR(30) DEFAULT NULL,
+    room_num    SMALLINT DEFAULT NULL,
     PRIMARY KEY(ign, discrim)
 );
 
@@ -36,7 +37,7 @@ CREATE TABLE game_stat(
     -- Average combat score throughout match, rounded
     acs             SMALLINT NOT NULL,
     -- Average damage per round
-    adr             NUMERIC(3, 1) NOT NULL,
+    adr             NUMERIC(5, 2) NOT NULL,
     -- Average econ score throughout match, rounded
     aes             SMALLINT NOT NULL,
     kills           TINYINT NOT NULL,
