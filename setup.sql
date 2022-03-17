@@ -16,6 +16,7 @@ CREATE TABLE game(
     CHECK(a_score >= 0 AND b_score >= 0)
 );
 
+
 CREATE TABLE player(
     ign         VARCHAR(30),
     discrim     VARCHAR(5),
@@ -24,6 +25,7 @@ CREATE TABLE player(
     room_num    SMALLINT DEFAULT NULL,
     PRIMARY KEY(ign, discrim)
 );
+
 
 CREATE TABLE game_stat(
     gamehash        CHAR(36),
@@ -54,6 +56,7 @@ CREATE TABLE game_stat(
     INDEX(agent)
 );
 
+
 CREATE TABLE team_stat(
     gamehash    CHAR(36),
     team        CHAR(1),
@@ -63,6 +66,7 @@ CREATE TABLE team_stat(
     PRIMARY KEY(gamehash, team),
     FOREIGN KEY(gamehash) REFERENCES game(gamehash) ON DELETE CASCADE
 );
+
 
 -- Materialized View for UDFs/Procedures/Triggers
 CREATE TABLE mv_player_overall_stat(

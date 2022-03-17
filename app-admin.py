@@ -1,6 +1,6 @@
 """
 Daniel Nee, Amy Pham
-TODO: Brief Overview of this client interface
+TODO: Brief Overview of this admin interface
 """
 import sys  # to print error messages to sys.stderr
 import mysql.connector
@@ -21,9 +21,9 @@ def get_conn():
     try:
         conn = mysql.connector.connect(
           host='localhost',
-          user='appclient',
+          user='appadmin',
           port='3306',
-          password='clientpw',
+          password='adminpw',
           database='val_stats'
         )
         print('Successfully connected.')
@@ -130,6 +130,33 @@ def query_teammates():
             sys.stderr('An error occurred, check DEBUG')
     show_options()
 
+
+def remove_player():
+    name = input("IGN of player: ").lower()
+    discrim = input("Tag of player: ")
+    cursor = conn.cursor()
+    sql1 = """
+    SELECT * FROM player
+    WHERE ign = '%s' AND discrim = '%s'
+    """ % (name, discrim, )
+    sql2 = """
+    CALL delete_player_game('%s','%s');
+    """ % (name, discrim, )
+    try:
+        cursor.execute(sql1)
+        result1 = cursor.fetchone()
+        if result1 == None:
+            print("Invalid IGN/Discrim")
+        else:
+            cursor.execute(sql2)
+            print('Completed')
+    except mysql.connector.Error as err:
+        if DEBUG:
+            sys.stderr(err)
+            sys.exit(1)
+        else:
+            sys.stderr('An error occurred, check DEBUG')
+    show_options()
 # ----------------------------------------------------------------------
 # Functions for Logging Users In
 # ----------------------------------------------------------------------
@@ -140,7 +167,7 @@ def login():
     for i in range(3):
         user = input("Username: ")
         pwd = input("Password: ")
-        sql = "SELECT authenticate('%s','%s');" % (user, pwd, )
+        sql = "SELECT authenticate_admin('%s','%s');" % (user, pwd, )
         try:
             cursor.execute(sql)
             result = cursor.fetchone()[0]
@@ -168,7 +195,9 @@ def show_options():
     print('  (1) - pull a player\'s overall stats')
     print('  (2) - pull a player\'s stats grouped by agent')
     print('  (3) - pull a player\'s top 5 teammates by frequency')
-    print('  (4) - quit')
+    print('  (4) - remove a player, every game they played, and' + \
+          ' any players who no longer have a game in the DB after doing so')
+    print('  (5) - quit')
     print('')
     ans = input('Enter an option: ').lower()
     if ans == '1':
@@ -178,6 +207,8 @@ def show_options():
     elif ans == '3':
         query_teammates()
     elif ans == '4':
+        remove_player()
+    elif ans == '5':
         print('Good Bye!')
         exit()
     else:

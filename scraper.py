@@ -62,8 +62,8 @@ def get_profile_html(name, discrim):
     # They put a cloudflare blocker the day after I wrote this
 
     # url = 'https://tracker.gg/valorant/profile/riot/' + \
-    #       {name.replace(' ', '%20')} + f'%23{discrim}' + \
-    #        '/matches?playlist=competitive&season=all'
+    #        name.replace(' ', '%20') + f'%23{discrim}' + \
+    #       '/matches?playlist=competitive&season=all'
     # driver = get_driver()
     # driver.get(url)
     # time.sleep(5)

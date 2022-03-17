@@ -15,7 +15,6 @@ BEGIN
     RETURN salt;
 END !
 DELIMITER ;
--- Provided (you may modify if you choose)
 -- This table holds information for authenticating users based on
 -- a password.  Passwords are not stored plaintext so that they
 -- cannot be used by people that shouldn't have them.
@@ -32,19 +31,26 @@ CREATE TABLE user_info (
     -- represented as 2 characters.  Thus, 256 / 8 * 2 = 64.
     -- We can use BINARY or CHAR here; BINARY simply has a different
     -- definition for comparison/sorting than CHAR.
-    password_hash BINARY(64) NOT NULL
+    password_hash BINARY(64) NOT NULL,
+    -- Admin boolean
+    is_admin TINYINT,
+    CHECK(is_admin IN (0, 1))
 );
 -- [Problem 1a]
 -- Adds a new user to the user_info table, using the specified password (max
 -- of 20 characters). Salts the password with a newly-generated salt value,
 -- and then the salt and hash values are both stored in the table.
 DELIMITER !
-CREATE PROCEDURE sp_add_user(new_username VARCHAR(20), password VARCHAR(20))
+CREATE PROCEDURE sp_add_user(
+    new_username VARCHAR(20),
+    password VARCHAR(20),
+    is_admin TINYINT
+)
 BEGIN
     DECLARE salt          CHAR(8);
     SELECT make_salt(8) INTO salt;
     INSERT INTO user_info
-    VALUES (new_username, salt, SHA2(CONCAT(salt, password), 256));
+    VALUES (new_username, salt, SHA2(CONCAT(salt, password), 256), is_admin);
 END !
 DELIMITER ;
 -- [Problem 1b]
@@ -70,8 +76,29 @@ BEGIN
     RETURN 0;
 END !
 DELIMITER ;
+
+-- Authenticates if the specified username and password are an admin
+DELIMITER !
+CREATE FUNCTION authenticate_admin(username VARCHAR(20), password VARCHAR(20))
+RETURNS TINYINT DETERMINISTIC
+BEGIN
+    DECLARE count_name  TINYINT;
+    DECLARE target_salt CHAR(8);
+    DECLARE target_hash BINARY(64);
+    SELECT COUNT(*) INTO count_name FROM user_info
+    WHERE user_info.username = username AND is_admin = 1;
+    IF count_name = 0 THEN RETURN 0;
+    END IF;
+    SELECT salt, password_hash INTO target_salt, target_hash FROM user_info
+    WHERE user_info.username = username AND is_admin = 1;
+    IF SHA2(CONCAT(target_salt, password), 256) = target_hash THEN RETURN 1;
+    ELSE RETURN 0;
+    END IF;
+    RETURN 0;
+END !
+DELIMITER ;
 -- [Problem 1c]
 -- Add at least two users into your user_info table so that when we run this file,
 -- we will have examples users in the database.
-CALL sp_add_user('client', '3478');
-CALL sp_add_user('admin', 'stronk_pw');
+CALL sp_add_user('client', '3478', 0);
+CALL sp_add_user('admin', 'stronk_pw', 1);
